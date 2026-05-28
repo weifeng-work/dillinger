@@ -18,6 +18,7 @@ import {
   Upload,
   ImagePlus,
   HelpCircle,
+  BookOpen,
 } from "lucide-react";
 
 type ExportFormat = "markdown" | "html" | "pdf";
@@ -37,6 +38,8 @@ export function Navbar() {
   const createImportedDocument = useStore((state) => state.createImportedDocument);
   const insertMarkdownAtCursor = useStore((state) => state.insertMarkdownAtCursor);
   const setZenMode = useStore((state) => state.setZenMode);
+  const setPreviewOnlyMode = useStore((state) => state.setPreviewOnlyMode);
+  const previewOnlyMode = useStore((state) => state.previewOnlyMode);
   const toggleShortcuts = useStore((state) => state.toggleShortcuts);
   const { notify } = useToast();
   const { upload } = useImageUpload();
@@ -266,6 +269,22 @@ export function Navbar() {
             </div>
           )}
         </div>
+
+        {/* Preview-only mode toggle */}
+        <button
+          onClick={() => setPreviewOnlyMode(!previewOnlyMode)}
+          aria-label={previewOnlyMode ? "Exit preview-only mode" : "Enter preview-only mode"}
+          title={previewOnlyMode ? "Exit preview-only mode" : "Preview-only mode (⌘⇧R)"}
+          aria-pressed={previewOnlyMode}
+          className={`p-2 rounded transition-all active:scale-[0.97]
+                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-navbar
+                     ${previewOnlyMode 
+                       ? 'text-plum focus-visible:ring-plum' 
+                       : 'text-text-invert hover:text-plum focus-visible:ring-plum'
+                     }`}
+        >
+          <BookOpen size={20} />
+        </button>
 
         {/* Preview toggle */}
         <button
