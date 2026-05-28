@@ -58,6 +58,8 @@ function EditorContent() {
   const insertMarkdownAtCursor = useStore((state) => state.insertMarkdownAtCursor);
   const zenMode = useStore((state) => state.zenMode);
   const setZenMode = useStore((state) => state.setZenMode);
+  const previewOnlyMode = useStore((state) => state.previewOnlyMode);
+  const setPreviewOnlyMode = useStore((state) => state.setPreviewOnlyMode);
   const isDirty = useStore((state) => state.isDirty);
   const shortcutsOpen = useStore((state) => state.shortcutsOpen);
   const toggleShortcuts = useStore((state) => state.toggleShortcuts);
@@ -130,7 +132,7 @@ function EditorContent() {
     e.stopPropagation();
   }, []);
 
-  // Keyboard shortcuts for zen mode
+  // Keyboard shortcuts for zen mode, preview-only mode, and keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Cmd/Ctrl + Shift + Z for zen mode
@@ -138,9 +140,16 @@ function EditorContent() {
         e.preventDefault();
         setZenMode(!zenMode);
       }
-      // Escape to exit zen mode
-      if (e.key === "Escape" && zenMode) {
-        setZenMode(false);
+      // Cmd/Ctrl + Shift + R for preview-only mode
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "r") {
+        e.preventDefault();
+        setPreviewOnlyMode(!previewOnlyMode);
+      }
+      // Escape to exit zen mode or preview-only mode
+      if (e.key === "Escape" && (zenMode || previewOnlyMode)) {
+        e.preventDefault();
+        if (zenMode) setZenMode(false);
+        if (previewOnlyMode) setPreviewOnlyMode(false);
       }
       // ? to open keyboard shortcuts
       if (
@@ -155,7 +164,7 @@ function EditorContent() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [zenMode, setZenMode, toggleShortcuts]);
+  }, [zenMode, setZenMode, previewOnlyMode, setPreviewOnlyMode, toggleShortcuts]);
 
   useEffect(() => {
     if (!isDirty) return;
@@ -171,6 +180,44 @@ function EditorContent() {
   // Show structural skeleton while hydrating
   if (!currentDocument) {
     return <EditorSkeleton />;
+  }
+
+  // Preview-only mode - fullscreen reading/preview
+  if (previewOnlyMode) {
+    return (
+      <div
+        className="h-dvh bg-bg-primary flex flex-col relative animate-fade-in"
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        <DropZoneOverlay isDragging={isDragging} />
+
+        {/* Top bar with exit button and document title */}
+        <div className="h-14 bg-bg-navbar flex items-center justify-between px-6 border-b border-border-light flex-shrink-0">
+          <h1 className="text-text-invert font-semibold truncate flex-1">
+            {currentDocument.title}
+          </h1>
+          <button
+            onClick={() => setPreviewOnlyMode(false)}
+            className="text-text-muted hover:text-text-invert transition-colors rounded
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-plum"
+            aria-label="Exit preview-only mode"
+            title="Exit (⌘⇧R)"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        {/* Full-screen preview content */}
+        <div className="flex-1 overflow-auto">
+          <div className="max-w-4xl mx-auto">
+            <MarkdownPreview />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Zen mode - fullscreen distraction-free editor
