@@ -18,6 +18,7 @@ interface AppState {
   shortcutsOpen: boolean;
   previewVisible: boolean;
   zenMode: boolean;
+  previewOnlyMode: boolean;
   isDirty: boolean;
   editorScrollPercent: number;
   editorTopLine: number;
@@ -41,6 +42,7 @@ interface AppState {
   toggleShortcuts: () => void;
   togglePreview: () => void;
   setZenMode: (enabled: boolean) => void;
+  setPreviewOnlyMode: (enabled: boolean) => void;
   setEditorScrollPercent: (percent: number) => void;
   setEditorTopLine: (line: number) => void;
 
@@ -67,6 +69,7 @@ export const useStore = create<AppState>((set, get) => ({
   shortcutsOpen: false,
   previewVisible: true,
   zenMode: false,
+  previewOnlyMode: false,
   isDirty: false,
   editorScrollPercent: 0,
   editorTopLine: 1,
@@ -186,6 +189,7 @@ export const useStore = create<AppState>((set, get) => ({
   toggleShortcuts: () => set((state) => ({ shortcutsOpen: !state.shortcutsOpen })),
   togglePreview: () => set((state) => ({ previewVisible: !state.previewVisible })),
   setZenMode: (enabled) => set({ zenMode: enabled }),
+  setPreviewOnlyMode: (enabled) => set({ previewOnlyMode: enabled }),
   setEditorScrollPercent: (percent) => set({ editorScrollPercent: percent }),
   setEditorTopLine: (line) => set({ editorTopLine: line }),
 
